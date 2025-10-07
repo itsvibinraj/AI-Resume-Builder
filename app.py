@@ -2,24 +2,21 @@
 
 import streamlit as st
 from datetime import datetime
-# Import functions from the other files
 from ai_logic import configure_api, generate_optimized_experience, generate_summary, generate_cover_letter
 from doc_generator import create_professional_template, create_modern_template
 
-# --- PAGE CONFIGURATION & API SETUP ---
 st.set_page_config(page_title="AI Resume & Portfolio Builder", layout="wide")
 model = configure_api()
 
 if 'history' not in st.session_state:
     st.session_state.history = []
 
-# --- STREAMLIT FRONTEND ---
+#  STREAMLIT FRONTEND 
 st.title("🤖 AI-Resume & Portfolio Builder")
 st.markdown("Enter your details below, and the AI will generate optimized content tailored to your target job.")
 
 st.header("Enter Your Infromation")
 
-# --- Updated Input Fields ---
 col1, col2 = st.columns(2)
 with col1:
     full_name = st.text_input("✍️ Full Name", placeholder="e.g., Jane Doe")
@@ -36,18 +33,17 @@ education = st.text_area("🎓 Education", height=100, placeholder="Enter your d
 certifications = st.text_area("📜 Certifications", height=100, placeholder="Enter any relevant certifications.")
 work_experience = st.text_area("🏆 Work Experience", height=300, placeholder="Enter your job duties and achievements for each role.\nFormat:\nProject Analyst - TechSolutions India, Bangalore (June 2022 - Present)\n\tCoordinated project activities for multiple software development teams using Agile methodologies.\n\tTracked project timelines, milestones, and deliverables in Jira, improving on-time task completion.\n\tFacilitated daily scrum meetings and prepared weekly status reports for stakeholders. ")
 
-# --- Template Selector ---
+#  Template Selector 
 template_choice = st.radio(
     "Select your desired resume template:",
     ("Professional", "Modern Two-Column"),
     horizontal=True
 )
 
-# --- Main Content Area ---
+#  AI Generated Content Area 
 st.header("Generated Documents")
 
 if st.button("✨ Generate and Optimize Documents", type="primary"):
-    # Updated to check for new fields
     if not all([full_name, email, phone_number, linkedin_profile, target_job_title, work_experience, education, skills, certifications]):
         st.warning("Please fill in all the fields to generate documents.")
     else:
@@ -57,7 +53,6 @@ if st.button("✨ Generate and Optimize Documents", type="primary"):
             st.session_state.cover_letter = generate_cover_letter(model, full_name, target_job_title, st.session_state.optimized_summary, st.session_state.optimized_experience)
             st.session_state.app_ran = True
 
-            # --- ADDED THIS BLOCK TO SAVE TO HISTORY ---
             history_entry = {
                 "job_title": target_job_title,
                 "summary": st.session_state.optimized_summary,
@@ -66,9 +61,8 @@ if st.button("✨ Generate and Optimize Documents", type="primary"):
                 "timestamp": datetime.now().strftime("%I:%M:%S %p")
             }
             st.session_state.history.insert(0, history_entry)
-            # -----------------------------------------
 
-# --- Display results ---
+#  Display results 
 if st.session_state.get('app_ran', False):
     st.subheader("📄 Optimized Resume Content")
     res_col1, res_col2 = st.columns(2)
@@ -88,12 +82,12 @@ if st.session_state.get('app_ran', False):
             resume_bytes = create_professional_template(
             full_name=full_name, email=email, phone_number=phone_number, linkedin_profile=linkedin_profile,
             summary=st.session_state.optimized_summary, experience=st.session_state.optimized_experience,
-            education=education, skills=skills, certifications=certifications
+            education=education, skills=skills, certifications=certifications,target_job_title=target_job_title
         )
         elif template_choice == "Modern Two-Column":
             resume_bytes = create_modern_template(full_name=full_name, email=email, phone_number=phone_number, linkedin_profile=linkedin_profile,
             summary=st.session_state.optimized_summary, experience=work_experience,
-            education=education, skills=skills, certifications=certifications)
+            education=education, skills=skills, certifications=certifications,target_job_title=target_job_title)
         
         st.download_button(
             label="Download Resume as .docx",
@@ -104,7 +98,7 @@ if st.session_state.get('app_ran', False):
     except Exception as e:
         st.error(f"Failed to create download file: {e}")
 
-# --- MOVED SIDEBAR TO THE CORRECT LOCATION ---
+#  SIDEBAR - Session History 
 with st.sidebar:
     st.header("📜 Session History")
     if not st.session_state.history:

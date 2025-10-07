@@ -24,7 +24,7 @@ def add_section_header(doc, title):
     p_bdr.append(bottom_bdr)
     p._p.get_or_add_pPr().append(p_bdr)
 
-def create_professional_template(full_name, email, phone_number, linkedin_profile, summary, experience, education, skills, certifications):
+def create_professional_template(full_name, email, phone_number, linkedin_profile, summary, experience, education, skills, certifications, target_job_title):
     """Creates a stylish, template-based .docx file."""
     doc = docx.Document()
     
@@ -36,43 +36,31 @@ def create_professional_template(full_name, email, phone_number, linkedin_profil
         section.left_margin = Inches(0.75)
         section.right_margin = Inches(0.75)
 
-    # --- HEADER ---
+    # HEADER 
     name_p = doc.add_paragraph()
     name_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     name_run = name_p.add_run(full_name.upper())
     name_run.bold = True
     name_run.font.size = Pt(24)
 
-    # --- This is the corrected line ---
-    #tagline_p = doc.add_paragraph("Digital Marketing | SEO | SEM | Content Marketing")
-    #tagline_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
     contact_p = doc.add_paragraph()
     contact_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    contact_p.add_run(f"Email: {email} | Phone Number: {phone_number}\n LinkedIn Profile: {linkedin_profile}") # Added location placeholder
+    contact_p.add_run(f"{target_job_title.upper()} | Email: {email}\nPhone Number: {phone_number} | LinkedIn Profile: {linkedin_profile}") # Added location placeholder
     contact_p.paragraph_format.space_after = Pt(18)
 
 
-    # --- PROFESSIONAL SUMMARY ---
     add_section_header(doc, "Professional Summary")
     doc.add_paragraph(summary)
 
-    # --- WORK EXPERIENCE ---
     add_section_header(doc, "Work Experience")
     doc.add_paragraph(experience)
 
-
-    # --- EDUCATION ---
     add_section_header(doc, "Education")
     doc.add_paragraph(education)
     
-
-    # --- SKILLS ---
     add_section_header(doc, "Skills")
     doc.add_paragraph(skills)
 
-
-    # --- CERTIFICATIONS ---
     add_section_header(doc, "Certifications")
     doc.add_paragraph(certifications)
     
@@ -81,7 +69,6 @@ def create_professional_template(full_name, email, phone_number, linkedin_profil
     doc.save(bio)
     bio.seek(0)
     return bio
-# doc_generator.py
 
 def add_modern_section_header(paragraph, title, draw_line=True):
     """Helper for the Modern Template's section headers."""
@@ -92,25 +79,22 @@ def add_modern_section_header(paragraph, title, draw_line=True):
         top_bdr.set(qn('w:val'), 'single'); top_bdr.set(qn('w:sz'), '4')
         p_bdr.append(top_bdr)
         p_pr.append(p_bdr)
-        # Add space above the line
         paragraph.paragraph_format.space_before = Pt(12)
     
-    # Add a newline character before the title to create the gap
     run = paragraph.add_run(f"\n{title.upper()}")
     run.bold = True
     run.font.size = Pt(11)
     paragraph.paragraph_format.space_after = Pt(6)
 
 
-def create_modern_template(full_name, email, phone_number, linkedin_profile, summary, experience, education, skills, certifications):
+def create_modern_template(full_name, email, phone_number, linkedin_profile, summary, experience, education, skills, certifications, target_job_title):
     doc = docx.Document()
     
-    # Set margins
     for section in doc.sections:
         section.top_margin = Inches(0.7); section.bottom_margin = Inches(0.7)
         section.left_margin = Inches(0.75); section.right_margin = Inches(0.75)
-    
-    # Set default paragraph spacing
+        
+    # Set default font and paragraph spacing
     style = doc.styles['Normal']
     paragraph_format = style.paragraph_format
     paragraph_format.space_after = Pt(4)
@@ -120,11 +104,12 @@ def create_modern_template(full_name, email, phone_number, linkedin_profile, sum
     name_p = doc.add_paragraph(); name_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
     name_run = name_p.add_run(full_name.upper()); name_run.font.size = Pt(24)
     name_run.bold = True
-    name_p.paragraph_format.space_after = Pt(10)
+    title_p = doc.add_paragraph(); title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    title_run = title_p.add_run(target_job_title); title_run.font.size = Pt(10)
+    title_p.paragraph_format.space_after = Pt(10)
 
-    # --- Main two-column layout using a styled table ---
+    #  Main two-column layout using a styled table 
     table = doc.add_table(rows=1, cols=2)
-    # (Code to style the table with a vertical line is unchanged)
     tbl_pr = table._element.xpath('w:tblPr')[0]
     tbl_borders = OxmlElement('w:tblBorders')
     for border_name in ['top', 'left', 'bottom', 'right', 'insideH']:
@@ -141,7 +126,6 @@ def create_modern_template(full_name, email, phone_number, linkedin_profile, sum
 
     # --- Populate Left & Right Columns ---
     
-    # Right-side headers get an indent
     summary_header_p = right_cell.add_paragraph()
     summary_header_p.paragraph_format.left_indent = Inches(0.25)
     add_modern_section_header(summary_header_p, "Profile Summary", draw_line=False)
@@ -152,7 +136,6 @@ def create_modern_template(full_name, email, phone_number, linkedin_profile, sum
     add_modern_section_header(experience_header_p, "Work Experience")
     experience_p = right_cell.add_paragraph(experience); experience_p.paragraph_format.left_indent = Inches(0.25)
 
-    # Left-side headers do not
     add_modern_section_header(left_cell.add_paragraph(), "Contact", draw_line=False)
     left_cell.add_paragraph(phone_number); left_cell.add_paragraph(email); left_cell.add_paragraph(linkedin_profile)
     add_modern_section_header(left_cell.add_paragraph(), "Education"); left_cell.add_paragraph(education)
