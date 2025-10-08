@@ -1,7 +1,7 @@
 # ai_logic.py
 
 import streamlit as st
-import google.generativeai as genai
+from groq import Groq
 import os
 from dotenv import load_dotenv
 
@@ -9,17 +9,18 @@ load_dotenv()
 
 def configure_api():
     try:
-        api_key = os.getenv("GEMINI_API_KEY")
+        #api_key = st.secrets.get("GROQ_API_KEY")
+        #if not api_key:
+        api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
             raise ValueError("API key not found. Make sure it's set in your .env file.")
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro-latest')
-        return model
+        client = Groq(api_key=api_key)
+        return client
     except Exception as e:
         st.error(f"Error configuring API: {e}")
         st.stop()
 
-def generate_optimized_experience(model, job_title, work_experience):
+def generate_optimized_experience(client, job_title, work_experience):
     
     prompt = f"""
     You are an expert career advisor and resume writer with 20 years of experience.
@@ -56,12 +57,15 @@ Now, rewrite the following work experience based on all the rules above:
 **Work Experience to Rewrite:**
 {work_experience}"""
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
     except Exception as e:
         return f"An error occurred while generating experience points: {e}"
 
-def generate_summary(model, job_title, skills, work_experience, education):
+def generate_summary(client, job_title, skills, work_experience, education):
     """Generates a professional resume summary from all inputs."""
     prompt = f"""
     Based on the following comprehensive information, write a compelling and professional resume summary of 3-4 lines.
@@ -78,12 +82,15 @@ def generate_summary(model, job_title, skills, work_experience, education):
     -   No need on any title or heading, just the summary text.
     """
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
     except Exception as e:
         return f"An error occurred while generating the summary: {e}"
 
-def generate_cover_letter(model, full_name, job_title, optimized_summary, optimized_experience):
+def generate_cover_letter(client, full_name, job_title, optimized_summary, optimized_experience):
     """Generates a tailored cover letter."""
     prompt = f"""
     Write a professional and tailored one-page cover letter.
@@ -100,7 +107,10 @@ def generate_cover_letter(model, full_name, job_title, optimized_summary, optimi
     2.  **Sign-off:** The sign-off must be "Sincerely," followed by the applicant's name: {full_name}.
     """
     try:
-        response = model.generate_content(prompt)
-        return response.text
+        response = client.chat.completions.create(
+            model="llama-3.1-8b-instant",
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return response.choices[0].message.content
     except Exception as e:
         return f"An error occurred while generating the cover letter: {e}"

@@ -6,7 +6,7 @@ from ai_logic import configure_api, generate_optimized_experience, generate_summ
 from doc_generator import create_professional_template, create_modern_template
 
 st.set_page_config(page_title="AI Resume & Portfolio Builder", layout="wide")
-model = configure_api()
+client = configure_api()
 
 if 'history' not in st.session_state:
     st.session_state.history = []
@@ -48,9 +48,9 @@ if st.button("✨ Generate and Optimize Documents", type="primary"):
         st.warning("Please fill in all the fields to generate documents.")
     else:
         with st.spinner("Generating your Resume and Cover letter..."):
-            st.session_state.optimized_experience = generate_optimized_experience(model, target_job_title, work_experience)
-            st.session_state.optimized_summary = generate_summary(model, target_job_title, skills, work_experience, education)
-            st.session_state.cover_letter = generate_cover_letter(model, full_name, target_job_title, st.session_state.optimized_summary, st.session_state.optimized_experience)
+            st.session_state.optimized_experience = generate_optimized_experience(client, target_job_title, work_experience)
+            st.session_state.optimized_summary = generate_summary(client, target_job_title, skills, work_experience, education)
+            st.session_state.cover_letter = generate_cover_letter(client, full_name, target_job_title, st.session_state.optimized_summary, st.session_state.optimized_experience)
             st.session_state.app_ran = True
 
             history_entry = {
