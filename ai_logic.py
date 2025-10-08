@@ -9,9 +9,9 @@ load_dotenv()
 
 def configure_api():
     try:
-        #api_key = st.secrets.get("GROQ_API_KEY")
-        #if not api_key:
-        api_key = os.getenv("GROQ_API_KEY")
+        api_key = st.secrets.get("GROQ_API_KEY")
+        if not api_key:
+            api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
             raise ValueError("API key not found. Make sure it's set in your .env file.")
         client = Groq(api_key=api_key)
