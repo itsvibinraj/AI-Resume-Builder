@@ -15,7 +15,7 @@ if 'history' not in st.session_state:
 st.title("🤖 AI-Resume & Portfolio Builder")
 st.markdown("Enter your details below, and the AI will generate optimized content tailored to your target job.")
 
-st.header("Enter Your Infromation")
+st.header("Enter Your Information")
 
 col1, col2 = st.columns(2)
 with col1:
